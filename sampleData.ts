@@ -1,5 +1,5 @@
-import { Prompt, Folder } from './types';
-import { PROMPT_TYPES, IMAGE_PROMPT_TYPE } from './constants';
+import { Prompt, Folder, ArtistStyle } from './types';
+import { PROMPT_TYPES, IMAGE_PROMPT_TYPE, ARTIST_STYLE_PROMPT_TYPE } from './constants';
 
 const FOLDERS = [
   'Тексты',
@@ -18,6 +18,17 @@ const folderData = FOLDERS.map(name => ({
 }));
 
 export const sampleFolders: Folder[] = folderData;
+
+const artistStyleContent: ArtistStyle = {
+  era: "2020s",
+  genre: "alt-R&B, trap, synthwave",
+  style: "cinematic and expansive, drenched in synth-heavy atmospheres, blending futuristic trap grit with retro-futurist textures, slow builds and dramatic drops",
+  vocals: "male, Canadian-American,  reverb-soaked falsettos and layered harmonies floating in space, contrasted with  pitched, erratic ad-libs breaking through the haze",
+  mood: "grandiose, nocturnal, otherworldly, tense yet euphoric, suspended between romance and chaos",
+  instrumentation: "analog synth walls, cosmic pads, distorted basslines, gliding arpeggios, sharp hi-hats, booming 808s, subtle guitar feedback woven into the atmosphere",
+  mastering: "masterpiece, widescreen stereo depth, powerful low end, shimmering highs, immersive and dynamic mix, 24 bit resolution, 192 khz sample rate, signature MIKE DEAN space-opera polish"
+};
+
 
 export const samplePrompts: Prompt[] = [
   {
@@ -101,6 +112,49 @@ export const samplePrompts: Prompt[] = [
     promptType: PROMPT_TYPES[4], // Задачи
     model: 'ChatGPT',
     color: '#d946ef', // fuchsia
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: crypto.randomUUID(),
+    title: 'Artist Sound & Production Profile',
+    content: `const [Artist]Sound_[Producer] = {
+  era: "[era]",
+  genre: "[genre]",
+  style: "[style]",
+  vocals: "[vocals]",
+  mood: "[mood]",
+  instrumentation: "[instrumentation]",
+  mastering: "[mastering]"
+};`,
+    folderId: 'folder-креатив',
+    promptType: PROMPT_TYPES[4], // Задачи
+    model: 'Gemini',
+    color: '#ef4444', // red
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: crypto.randomUUID(),
+    title: 'Artist Lyrical & Artistic Profile',
+    content: `const [Artist]LyricalProfile = {
+  typicalThemesAndEmotionalPalette: "[typicalThemesAndEmotionalPalette]",
+  wordChoiceImageryMotifs: "[wordChoiceImageryMotifs]",
+  flowRhymeHabitsRhythmicQuirks: "[flowRhymeHabitsRhythmicQuirks]",
+  personaVocalStyleArtistSignatures: "[personaVocalStyleArtistSignatures]"
+};`,
+    folderId: 'folder-креатив',
+    promptType: PROMPT_TYPES[4], // Задачи
+    model: 'ChatGPT',
+    color: '#84cc16', // lime
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: crypto.randomUUID(),
+    title: 'The Weeknd/Playboi Carti Sound (Mike Dean Producer)',
+    content: JSON.stringify(artistStyleContent),
+    folderId: 'folder-креатив',
+    promptType: ARTIST_STYLE_PROMPT_TYPE,
+    model: 'MusicGen',
+    color: '#06b6d4', // cyan
     createdAt: new Date().toISOString(),
   },
 ];

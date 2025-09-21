@@ -17,3 +17,19 @@ export interface Folder {
   name: string;
   createdAt: string;
 }
+
+export interface ArtistStyle {
+  era: string;
+  genre: string;
+  style: string;
+  vocals: string;
+  mood: string;
+  instrumentation: string;
+  mastering: string;
+}
+
+export interface LastUsedSettings {
+  promptType: string;
+  folderId: string | null;
+  model: string;
+}

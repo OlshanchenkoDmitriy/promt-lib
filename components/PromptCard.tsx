@@ -1,9 +1,9 @@
 
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Prompt } from '../types';
+import { Prompt, ArtistStyle } from '../types';
 import { EditIcon, TrashIcon, CopyIcon, CheckIcon, FolderIcon, ImageIcon, SparklesIcon } from './icons';
-import { IMAGE_PROMPT_TYPE } from '../constants';
+import { IMAGE_PROMPT_TYPE, ARTIST_STYLE_PROMPT_TYPE } from '../constants';
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -17,21 +17,35 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, folderName, onEdit, onD
   const [copied, setCopied] = useState(false);
   const [imageError, setImageError] = useState(false);
   const isImagePrompt = prompt.promptType === IMAGE_PROMPT_TYPE;
+  const isArtistStylePrompt = prompt.promptType === ARTIST_STYLE_PROMPT_TYPE;
 
-  const hasPlaceholders = useMemo(() => /\[(.*?)\]/.test(prompt.content), [prompt.content]);
+  const hasPlaceholders = useMemo(() => !isArtistStylePrompt && /\[(.*?)\]/.test(prompt.content), [prompt.content, isArtistStylePrompt]);
 
   useEffect(() => {
     setImageError(false);
   }, [prompt.imageUrl]);
 
   const handleCopy = () => {
-    const textToCopy = isImagePrompt
-      ? [
+    let textToCopy;
+    if (isArtistStylePrompt) {
+        try {
+            const data = JSON.parse(prompt.content) as ArtistStyle;
+            const titleAsVar = prompt.title.replace(/[^a-zA-Z0-9]/g, '') || 'artistStyle';
+            textToCopy = `const ${titleAsVar} = {\n` +
+                Object.entries(data).map(([key, value]) => `  ${key}: "${String(value || '').replace(/"/g, '\\"')}"`).join(',\n') +
+            `\n};`;
+        } catch {
+            textToCopy = prompt.content;
+        }
+    } else if (isImagePrompt) {
+       textToCopy = [
           prompt.content,
           prompt.parameters,
           prompt.negativePrompt ? `--no ${prompt.negativePrompt}` : ''
-        ].filter(Boolean).join(' ').trim()
-      : prompt.content;
+        ].filter(Boolean).join(' ').trim();
+    } else {
+        textToCopy = prompt.content;
+    }
 
     navigator.clipboard.writeText(textToCopy);
     setCopied(true);
@@ -56,6 +70,25 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, folderName, onEdit, onD
       return part;
     });
   };
+
+  const renderArtistStyleContent = () => {
+    try {
+      const data = JSON.parse(prompt.content) as ArtistStyle;
+      return (
+        <ul className="text-xs space-y-1 text-gray-400">
+          {Object.entries(data).slice(0, 3).map(([key, value]) => (
+            value && <li key={key} className="truncate">
+              <span className="font-semibold text-gray-300 capitalize">{key}: </span>
+              <span>{value}</span>
+            </li>
+          ))}
+        </ul>
+      );
+    } catch (e) {
+      return <p className="line-clamp-4 font-mono text-xs">{prompt.content}</p>;
+    }
+  };
+
 
   return (
     <div className="bg-gray-800 border border-gray-700 rounded-lg shadow-lg flex flex-col h-full hover:border-blue-accent transition-all duration-200 group">
@@ -88,7 +121,7 @@ const PromptCard: React.FC<PromptCardProps> = ({ prompt, folderName, onEdit, onD
           <span className="bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-mono font-medium">{prompt.model}</span>
         </div>
         <div className="text-sm text-gray-400 mb-4 h-20 overflow-hidden relative flex-grow">
-            <p className="line-clamp-4">{renderContentWithPlaceholders(prompt.content)}</p>
+            {isArtistStylePrompt ? renderArtistStyleContent() : <p className="line-clamp-4">{renderContentWithPlaceholders(prompt.content)}</p>}
             <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-gray-800 to-transparent"></div>
         </div>
       </div>

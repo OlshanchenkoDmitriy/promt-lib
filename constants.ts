@@ -1,5 +1,7 @@
 
 
+export const ARTIST_STYLE_PROMPT_TYPE = 'Artist Styles';
+
 export const AI_MODELS = [
   'ChatGPT',
   'Claude',
@@ -10,7 +12,8 @@ export const AI_MODELS = [
   'Sora',
   'Flux',
   'Veo 3',
-  'Midjourney'
+  'Midjourney',
+  'MusicGen'
 ];
 
 export const COLOR_PALETTE = [
@@ -34,5 +37,6 @@ export const PROMPT_TYPES = [
   IMAGE_PROMPT_TYPE,
   'Анализ и структурирование',
   'Инструкции',
-  'Задачи'
+  'Задачи',
+  ARTIST_STYLE_PROMPT_TYPE,
 ];

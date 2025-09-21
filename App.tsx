@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Prompt, Folder } from './types';
+import { Prompt, Folder, LastUsedSettings } from './types';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
@@ -8,13 +8,18 @@ import PromptModal from './components/PromptModal';
 import PlaceholderModal from './components/PlaceholderModal';
 import { samplePrompts, sampleFolders } from './sampleData';
 import { PlusIcon, FileCodeIcon, FileTextIcon, XIcon } from './components/icons';
-import { IMAGE_PROMPT_TYPE } from './constants';
+import { IMAGE_PROMPT_TYPE, PROMPT_TYPES, AI_MODELS } from './constants';
 
 export type SortOrder = 'createdAt_desc' | 'createdAt_asc' | 'title_asc' | 'title_desc' | 'promptType_asc' | 'promptType_desc';
 
 function App() {
   const [prompts, setPrompts] = useLocalStorage<Prompt[]>('prompts', samplePrompts);
   const [folders, setFolders] = useLocalStorage<Folder[]>('folders', sampleFolders);
+  const [lastUsedSettings, setLastUsedSettings] = useLocalStorage<LastUsedSettings>('lastUsedSettings', {
+    promptType: PROMPT_TYPES[0],
+    folderId: null,
+    model: AI_MODELS[0],
+  });
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -47,6 +52,11 @@ function App() {
     } else {
       setPrompts(prev => [promptToSave, ...prev]);
     }
+    setLastUsedSettings({
+        promptType: promptToSave.promptType,
+        folderId: promptToSave.folderId,
+        model: promptToSave.model,
+    });
     setIsModalOpen(false);
     setEditingPrompt(null);
   };
@@ -299,6 +309,7 @@ function App() {
           onSave={handleSavePrompt}
           folders={folders}
           promptToEdit={editingPrompt}
+          lastUsedSettings={lastUsedSettings}
         />
       )}
       {placeholderPrompt && (
@@ -338,7 +349,7 @@ function App() {
       )}
        <button
         onClick={handleNewPromptClick}
-        className="fixed bottom-6 right-6 bg-blue-accent hover:bg-blue-accent-hover text-white rounded-full p-4 shadow-lg sm:hidden z-20 transition-transform duration-200 transform hover:scale-110 animate-scale-in"
+        className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-6 bg-blue-accent hover:bg-blue-accent-hover text-white rounded-full p-4 shadow-lg sm:hidden z-20 transition-transform duration-200 transform hover:scale-110 animate-scale-in"
         aria-label="Создать новый промпт"
         title="Создать новый промпт"
       >

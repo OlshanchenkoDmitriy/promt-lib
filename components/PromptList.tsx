@@ -25,7 +25,7 @@ const PromptList: React.FC<PromptListProps> = ({ prompts, folders, onEdit, onDel
   }
 
   return (
-    <div className="flex-1 p-4 md:p-6 pb-24 sm:pb-4 overflow-y-auto">
+    <div className="flex-1 p-4 md:p-6 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:pb-4 overflow-y-auto">
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
           {prompts.map(prompt => (

@@ -1,9 +1,9 @@
 
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Prompt } from '../types';
+import { Prompt, ArtistStyle } from '../types';
 import { EditIcon, TrashIcon, CopyIcon, CheckIcon, FolderIcon, ImageIcon, SparklesIcon } from './icons';
-import { IMAGE_PROMPT_TYPE } from '../constants';
+import { IMAGE_PROMPT_TYPE, ARTIST_STYLE_PROMPT_TYPE } from '../constants';
 
 interface PromptRowProps {
   prompt: Prompt;
@@ -17,8 +17,9 @@ const PromptRow: React.FC<PromptRowProps> = ({ prompt, folderName, onEdit, onDel
   const [copied, setCopied] = useState(false);
   const [imageError, setImageError] = useState(false);
   const isImagePrompt = prompt.promptType === IMAGE_PROMPT_TYPE;
+  const isArtistStylePrompt = prompt.promptType === ARTIST_STYLE_PROMPT_TYPE;
 
-  const hasPlaceholders = useMemo(() => /\[(.*?)\]/.test(prompt.content), [prompt.content]);
+  const hasPlaceholders = useMemo(() => !isArtistStylePrompt && /\[(.*?)\]/.test(prompt.content), [prompt.content, isArtistStylePrompt]);
 
   useEffect(() => {
     setImageError(false);
@@ -26,13 +27,26 @@ const PromptRow: React.FC<PromptRowProps> = ({ prompt, folderName, onEdit, onDel
 
   const handleCopy = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const textToCopy = isImagePrompt
-      ? [
+    let textToCopy;
+     if (isArtistStylePrompt) {
+        try {
+            const data = JSON.parse(prompt.content) as ArtistStyle;
+            const titleAsVar = prompt.title.replace(/[^a-zA-Z0-9]/g, '') || 'artistStyle';
+            textToCopy = `const ${titleAsVar} = {\n` +
+                Object.entries(data).map(([key, value]) => `  ${key}: "${String(value || '').replace(/"/g, '\\"')}"`).join(',\n') +
+            `\n};`;
+        } catch {
+            textToCopy = prompt.content;
+        }
+    } else if (isImagePrompt) {
+       textToCopy = [
           prompt.content,
           prompt.parameters,
           prompt.negativePrompt ? `--no ${prompt.negativePrompt}` : ''
-        ].filter(Boolean).join(' ').trim()
-      : prompt.content;
+        ].filter(Boolean).join(' ').trim();
+    } else {
+        textToCopy = prompt.content;
+    }
       
     navigator.clipboard.writeText(textToCopy);
     setCopied(true);
